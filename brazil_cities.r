@@ -7,6 +7,7 @@ library(broom)
 library(GGally)
 library(psych)
 library(lmtest)
+library(FactoMineR)
 
 source("./functions.r")
 
@@ -659,3 +660,43 @@ paste0(
   "MAPE : ", mape_pca, "\n"
 ) %>%
   write(file = "./outputs/rmse_pca.txt")
+
+
+###### ACP ######
+#Q6
+#How to put two qualitative variables ? 
+out_acp <- PCA(cities_acp[2:12],scale.unit=TRUE,ncp=9, quali.sup=1)
+summary(out_acp)
+out_acp
+
+val_prop <- out_acp$eig[,"eigenvalue"]
+val_prop_cum <- cumsum(val_prop)/sum(val_prop)
+cp <- 1:length(val_prop)
+vp <- data.frame(cp=cp,val_prop=val_prop)
+vp_cum <- data.frame(cp=cp,val_prop_cum=val_prop_cum)
+
+ggplot(data=vp,aes(x=cp,y=val_prop))+
+  geom_bar(stat="identity",fill="steelblue")+
+  theme_minimal()+
+  ggtitle("Eboulis des valeurs propres")+
+  xlab("Nombre de composantes principales")+
+  ylab("Valeurs propres")+
+  scale_x_continuous(breaks=cp)
+
+#Q7
+
+ggplot(data=vp_cum,aes(x=cp,y=val_prop_cum))+
+  geom_bar(stat="identity",fill="steelblue")+
+  theme_minimal()+
+  ggtitle("Part d'inertie expliquée en fonction du nombre de CP")+
+  xlab("Nombre de composantes principales")+
+  ylab("Part d'inertie expliquée")+
+  scale_x_continuous(breaks=cp)
+
+
+#Q9
+plot.PCA(out_acp,shadow=TRUE,cex=0.8,axes=c(1,2),choix="ind",habillage=1,label="none",new.plot=TRUE,
+         title="Projection des individus : en fonction de la REGION")
+plot.PCA(out_acp,shadow=TRUE,cex=0.8,axes=c(1,2),choix="ind",habillage=1,label="none",new.plot=TRUE,
+         title="Projection des individus : en fonction de la catégorie RURALE/URBAINE")
+
